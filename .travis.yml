@@ -1,11 +1,10 @@
 language: haskell
 ghc:
   - "7.10.3"
-  - "7.4.1"
 install:
   - cabal install
 script:
-  - cabal update
+  - cabal configure
   - cabal build
   - cabal test
   - cabal haddock --executables
