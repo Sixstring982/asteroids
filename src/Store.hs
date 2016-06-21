@@ -22,7 +22,7 @@ render (Store ship) = Ship.render ship
 
 
 handleEvent :: Event -> Store -> Store
-handleEvent _ s = s
+handleEvent e (Store ship) = Store (Ship.handleEvent e ship)
 
 update :: Float -> Store -> Store
 update f (Store ship) = (Store (Ship.update f ship))
