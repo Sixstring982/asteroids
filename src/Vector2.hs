@@ -12,7 +12,10 @@ module Vector2 (
 
 import Graphics.Gloss
 
-data Vector2 = Vector2 Float Float
+-- | A vector with two components.
+data Vector2
+  -- | Constructs a Vector2 with its two components.
+  = Vector2 Float Float
   deriving(Show)
 
 instance Num Vector2 where
@@ -23,29 +26,52 @@ instance Num Vector2 where
   signum (Vector2 ax ay)            = Vector2 (signum ax) (signum ay)
   fromInteger i                     = Vector2 (fromIntegral i) 0
 
+-- | A Vector2 with both of its components set to 0.0 .
 zero :: Vector2
 zero = Vector2 0 0
 
-scale :: Float -> Vector2 -> Vector2
-scale f (Vector2 x y) = Vector2 (f * x) (f * y)
-
+-- | A Vector2 of the basis vector I, which is a normalized vector in
+-- the X direction.
 i :: Vector2
 i = Vector2 1 0
 
+-- | A Vector2 of the basis vector J, which is a normalized vector in
+-- the Y direction.
 j :: Vector2
 j = Vector2 0 1
 
-fromPolar :: (Float, Float) -> Vector2
+-- | Given a scalar and a Vector2, returns a version of the vector
+-- with its components multiplied by the vector.
+scale :: Float                        -- ^ The scalar to scale the vector by
+      -> Vector2                      -- ^ The vector to scale
+      -> Vector2                      -- ^ The scaled vector
+scale f (Vector2 x y) = Vector2 (f * x) (f * y)
+
+-- | Given a pair of polar coordinates, transforms then into a
+-- Vector2 with euclidean components.
+fromPolar :: (Float, Float)           -- ^ The polar coordinates (theta, r)
+          -> Vector2                  -- ^ The euclidean vector
+                                      -- representation of the polar
+                                      -- coordinates
 fromPolar (theta, r) = Vector2 (r * cos(theta)) (r * sin(theta))
 
-toPoint :: Vector2 -> Point
+-- | Given a Vector2, returns its components in a tuple.
+toPoint :: Vector2                    -- ^ The Vector2 to turn into a Point
+        -> Point                      -- ^ The coordinates of the Vector2
 toPoint (Vector2 x y) = (x, y)
+
+-- | Given a list of Vector2 objects, turns them into a renderable
+-- line.
+toLine :: [Vector2]                   -- ^ The vectors to turn into a line
+       -> Picture                     -- ^ The resulting line
+toLine = toRenderable line
+
+
+-- | Given a list of Vector2 objects, turns them into a renderable
+-- polygon.
+toPolygon :: [Vector2]                   -- ^ The vectors to turn into a polygon
+          -> Picture                     -- ^ The resulting polygon
+toPolygon = toRenderable polygon
 
 toRenderable :: ([Point] -> Picture) -> [Vector2] -> Picture
 toRenderable f = f . (map toPoint)
-
-toLine :: [Vector2] -> Picture
-toLine = toRenderable line
-
-toPolygon :: [Vector2] -> Picture
-toPolygon = toRenderable polygon

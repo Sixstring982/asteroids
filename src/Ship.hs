@@ -15,6 +15,7 @@ import Vector2
 data Acceleration = NoAcceleration | Forward | Backward
   deriving(Show)
 
+-- | The rate that the ship will accelerate at, in pixels per second^2.
 accelerationSpeed :: Float
 accelerationSpeed = 6.0
 
@@ -34,6 +35,7 @@ applyAcceleration Backward           t v h = v - Vector2.scale (accelerationSpee
 data Rotation = NoRotation | LeftRotation | RightRotation
   deriving(Show)
 
+-- | The rate that the ship will rotate at, in radians per second.
 rotationSpeed :: Float
 rotationSpeed = 3.0
 
@@ -57,10 +59,15 @@ data Ship = Ship { angle :: Float,
                    rotation :: Rotation
                  } deriving(Show)
 
+-- | The size of the ship, Really, this is the number of pixels from
+-- the nose to the center of the ship.
 shipSize :: Float
 shipSize = 20.0
 
-heading :: Ship -> Vector2
+-- | Calculates the heading of the ship as a normalized vector based
+-- on its rotation angle.
+heading :: Ship                       -- ^ The ship to calculate the heading of
+        -> Vector2                    -- ^ The heading of the ship
 heading (Ship a _ _ _ _ _) = fromPolar (a, 1)
 
 shipShape :: Picture
