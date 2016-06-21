@@ -14,7 +14,7 @@ import Screen
 import Vector2
 
 data Acceleration = NoAcceleration | Forward | Backward
-  deriving(Show)
+  deriving(Eq, Show)
 
 -- | The rate that the ship will accelerate at, in pixels per second^2.
 accelerationSpeed :: Float
@@ -71,13 +71,28 @@ heading :: Ship                       -- ^ The ship to calculate the heading of
         -> Vector2                    -- ^ The heading of the ship
 heading (Ship a _ _ _ _ _) = fromPolar (a, 1)
 
-shipShape :: Picture
-shipShape = let first = (0, 1) in
+shipTranslation :: Ship -> (Picture -> Picture)
+shipTranslation (Ship a c (Vector2 x y) _ _ _) = (translate x y) . (rotate (degFromRad (-a))) . color c
+
+shipPicture :: Ship -> Picture
+shipPicture ship = pictures [bodyPicture, flamePicture ship]
+
+flameColor :: Color
+flameColor = red
+
+flamePicture :: Ship -> Picture
+flamePicture (Ship _ _ _ _ a _) =
+  let flame = toLine $ (map (Vector2.scale shipSize)) $ (map fromPolar)
+        [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5), (0, 0)]
+  in if a /= Forward then Blank else flame
+
+bodyPicture :: Picture
+bodyPicture = let first = (0, 1) in
   toLine $ (map (Vector2.scale shipSize)) $ (map fromPolar)
   [first, ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66), first]
 
 _shipRender :: Ship -> Picture
-_shipRender (Ship a c (Vector2 x y) _ _ _) = color c  $ translate x y $ rotate (degFromRad (-a)) $ shipShape
+_shipRender ship = (shipTranslation ship) (shipPicture ship)
 
 _shipNew :: Ship
 _shipNew = Ship { angle = 0.0,
