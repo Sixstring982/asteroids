@@ -8,6 +8,7 @@ module Vector2 (
   toPoint,
   fromPoint,
   toLine,
+  toLineLoop,
   toPolygon
 ) where
 
@@ -70,6 +71,10 @@ fromPoint (x, y) = Vector2 x y
 toLine :: [Vector2]                   -- ^ The vectors to turn into a line
        -> Picture                     -- ^ The resulting line
 toLine = toRenderable line
+
+toLineLoop :: [Vector2]
+           -> Picture
+toLineLoop = toRenderable lineLoop
 
 
 -- | Given a list of Vector2 objects, turns them into a renderable

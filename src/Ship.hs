@@ -82,14 +82,14 @@ flameColor = red
 
 flamePicture :: Ship -> Picture
 flamePicture (Ship _ _ _ _ a _) =
-  let flame = toLine $ (map (Vector2.scale shipSize)) $ (map fromPolar)
-        [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5), (0, 0)]
+  let flame = toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
+        [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5)]
   in if a /= Forward then Blank else flame
 
 bodyPicture :: Picture
-bodyPicture = let first = (0, 1) in
-  toLine $ (map (Vector2.scale shipSize)) $ (map fromPolar)
-  [first, ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66), first]
+bodyPicture =
+  toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
+  [(0, 1), ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66)]
 
 _shipRender :: Ship -> Picture
 _shipRender ship = (shipTranslation ship) (shipPicture ship)
