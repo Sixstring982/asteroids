@@ -3,7 +3,8 @@ module Ship (
   new,
   render,
   handleEvent,
-  update
+  update,
+  noseHeading
 ) where
 
 import Graphics.Gloss
@@ -59,6 +60,12 @@ data Ship = Ship { angle :: Float,
                    acceleration :: Acceleration,
                    rotation :: Rotation
                  } deriving(Show)
+
+noseHeading :: Ship -> (Vector2, Vector2)
+noseHeading s =
+  let hding = heading s in
+  let nose = (pos s) + (Vector2.scale shipSize hding) in
+  (nose, hding)
 
 -- | The size of the ship, Really, this is the number of pixels from
 -- the nose to the center of the ship.
