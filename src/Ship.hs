@@ -9,37 +9,59 @@ module Ship (
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Entity
+import Math
 import Vector2
 
-data Acceleration = None | Forward | Backward
+data Acceleration = NoAcceleration | Forward | Backward
   deriving(Show)
 
 accelerationSpeed :: Float
-accelerationSpeed = 20.0
+accelerationSpeed = 6.0
 
--- | Given a time delta, vector, and heading, applies an acceleration to the
--- velocity vector.
+-- | Given an acceleration type, time delta, vector, and heading,
+-- applies an acceleration to the velocity vector.
 applyAcceleration :: Acceleration     -- ^ The Acceleration type to apply
                   -> Float            -- ^ The time delta given by an update function
                   -> Vector2          -- ^ The current velocity
                   -> Vector2          -- ^ The current heading (normalized)
                   -> Vector2          -- ^ The resulting velocity
-applyAcceleration None     _ v _ = v
-applyAcceleration Forward  t v h = v + Vector2.scale (accelerationSpeed * t) h
-applyAcceleration Backward t v h = v - Vector2.scale (accelerationSpeed * t) h
+applyAcceleration NoAcceleration     _ v _ = v
+applyAcceleration Forward            t v h = v + Vector2.scale (accelerationSpeed * t) h
+applyAcceleration Backward           t v h = v - Vector2.scale (accelerationSpeed * t) h
+
+
+
+data Rotation = NoRotation | LeftRotation | RightRotation
+  deriving(Show)
+
+rotationSpeed :: Float
+rotationSpeed = 3.0
+
+-- | Given a rotation type, time delta, and angle, applies rotation to
+-- the angle.
+applyRotation :: Rotation             -- ^ The Rotation type to apply
+              -> Float                -- ^ The time delta given by an update function
+              -> Float                -- ^ The current angle
+              -> Float                -- ^ The resulting angle
+applyRotation NoRotation    _ a = a
+applyRotation LeftRotation  f a = a + rotationSpeed * f
+applyRotation RightRotation f a = a - rotationSpeed * f
+
+
 
 data Ship = Ship { angle :: Float,
                    drawColor :: Color,
                    pos :: Vector2,
                    vel :: Vector2,
-                   acceleration :: Acceleration
+                   acceleration :: Acceleration,
+                   rotation :: Rotation
                  } deriving(Show)
 
 shipSize :: Float
 shipSize = 20.0
 
 heading :: Ship -> Vector2
-heading (Ship a _ _ _ _) = fromPolar (a, 1)
+heading (Ship a _ _ _ _ _) = fromPolar (a, 1)
 
 shipShape :: Picture
 shipShape = let first = (0, 1) in
@@ -47,28 +69,42 @@ shipShape = let first = (0, 1) in
   [first, ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66), first]
 
 _shipRender :: Ship -> Picture
-_shipRender (Ship a c (Vector2 x y) _ _) = color c $ rotate a $ translate x y $ shipShape
+_shipRender (Ship a c (Vector2 x y) _ _ _) = color c  $ translate x y $ rotate (degFromRad (-a)) $ shipShape
 
 _shipNew :: Ship
 _shipNew = Ship { angle = 0.0,
                   drawColor = white,
                   pos = zero,
                   vel = zero,
-                  acceleration = None}
+                  acceleration = NoAcceleration,
+                  rotation = NoRotation}
 
 _shipHandleEvent :: Event -> Ship -> Ship
-_shipHandleEvent (EventKey (Char 'w') state _ _) s = s { acceleration = (if state == Up then None else Forward) }
-_shipHandleEvent (EventKey (Char 's') state _ _) s = s { acceleration = (if state == Up then None else Backward) }
+_shipHandleEvent (EventKey (Char 'w') state _ _) s =
+  s { acceleration = (if state == Up then NoAcceleration else Forward) }
+
+_shipHandleEvent (EventKey (Char 's') state _ _) s =
+  s { acceleration = (if state == Up then NoAcceleration else Backward) }
+
+_shipHandleEvent (EventKey (Char 'a') state _ _) s =
+  s { rotation = (if state == Up then NoRotation else LeftRotation) }
+
+_shipHandleEvent (EventKey (Char 'd') state _ _) s =
+  s { rotation = (if state == Up then NoRotation else RightRotation) }
+
 _shipHandleEvent _ s = s
 
 updateVelocity :: Float -> Ship -> Ship
-updateVelocity f s@(Ship _ _ _ v a) = s { vel = applyAcceleration a f v (heading s) }
+updateVelocity f s@(Ship _ _ _ v a _) = s { vel = applyAcceleration a f v (heading s) }
 
 updatePosition :: Float -> Ship -> Ship
-updatePosition f s@(Ship _ _ p v _) = s { pos = p + v }
+updatePosition f s@(Ship _ _ p v _ _) = s { pos = p + v }
+
+updateAngle :: Float -> Ship -> Ship
+updateAngle f s@(Ship a _ _ _ _ r) = s { angle = applyRotation r f a }
 
 _shipUpdate :: Float -> Ship -> Ship
-_shipUpdate f = (updateVelocity f) . (updatePosition f)
+_shipUpdate f = (updateAngle f) . (updateVelocity f) . (updatePosition f)
 
 instance Entity Ship where
   new         = _shipNew
