@@ -4,7 +4,6 @@ ghc:
 install:
   - cabal install
 script:
-  - cabal configure
+  - cabal configure --enable-tests
   - cabal build
   - cabal test
-  - cabal haddock --executables
