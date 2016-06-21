@@ -1,25 +1,28 @@
 module Store (
   Store(Store),
-  new,
-  render,
-  handleEvent,
-  update
+  Store.new,
+  Store.render,
+  Store.handleEvent,
+  Store.update
 ) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 
-data Store = Store Float
+import Entity
+import Ship
+
+data Store = Store Ship
 
 new :: Store
-new = Store 0.0
+new = Store Ship.new
 
 render :: Store -> Picture
-render (Store f) = color white $ rotate f $ line [(100, -100), (0, 200), (-100, -100), (100, -100)]
+render (Store ship) = Ship.render ship
 
 
 handleEvent :: Event -> Store -> Store
 handleEvent _ s = s
 
 update :: Float -> Store -> Store
-update f (Store a) = (Store (20.0 * f + a))
+update f (Store ship) = (Store (Ship.update f ship))
