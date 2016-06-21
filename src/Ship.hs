@@ -10,6 +10,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Entity
 import Math
+import Screen
 import Vector2
 
 data Acceleration = NoAcceleration | Forward | Backward
@@ -104,14 +105,32 @@ _shipHandleEvent _ s = s
 updateVelocity :: Float -> Ship -> Ship
 updateVelocity f s@(Ship _ _ _ v a _) = s { vel = applyAcceleration a f v (heading s) }
 
+wrapInBounds :: (Float, Float)
+             -> (Float, Float)
+             -> (Float, Float)
+             -> (Float, Float)
+wrapInBounds (min_x, min_y) (max_x, max_y) (x, y) =
+  let wrap v mn mx = if v < mn then mx + (mn - v)
+                     else if v > mx then mn + (v - mx)
+                          else v in
+  let new_x = wrap x min_x max_x in
+  let new_y = wrap y min_y max_y in
+  (new_x, new_y)
+
+wrapInScreen :: (Float, Float) -> (Float, Float)
+wrapInScreen = wrapInBounds mins maxs where
+  (w, h) = Screen.dimensions
+  mins   = (fromIntegral (-(w `div` 2)), fromIntegral (-(h `div` 2)))
+  maxs   = (fromIntegral (w `div` 2), fromIntegral (h `div` 2))
+
 updatePosition :: Float -> Ship -> Ship
-updatePosition f s@(Ship _ _ p v _ _) = s { pos = p + v }
+updatePosition f s@(Ship _ _ p v _ _) = s { pos = fromPoint $ wrapInScreen $ toPoint $ p + v }
 
 updateAngle :: Float -> Ship -> Ship
 updateAngle f s@(Ship a _ _ _ _ r) = s { angle = applyRotation r f a }
 
 _shipUpdate :: Float -> Ship -> Ship
-_shipUpdate f = (updateAngle f) . (updateVelocity f) . (updatePosition f)
+_shipUpdate f = (updateVelocity f) . (updatePosition f) . (updateAngle f)
 
 instance Entity Ship where
   new         = _shipNew

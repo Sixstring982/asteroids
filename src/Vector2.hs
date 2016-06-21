@@ -6,11 +6,13 @@ module Vector2 (
   Vector2.scale,
   fromPolar,
   toPoint,
+  fromPoint,
   toLine,
   toPolygon
 ) where
 
 import Graphics.Gloss
+import Math
 
 -- | A vector with two components.
 data Vector2
@@ -59,6 +61,9 @@ fromPolar (theta, r) = Vector2 (r * cos(theta)) (r * sin(theta))
 toPoint :: Vector2                    -- ^ The Vector2 to turn into a Point
         -> Point                      -- ^ The coordinates of the Vector2
 toPoint (Vector2 x y) = (x, y)
+
+fromPoint :: Point -> Vector2
+fromPoint (x, y) = Vector2 x y
 
 -- | Given a list of Vector2 objects, turns them into a renderable
 -- line.
