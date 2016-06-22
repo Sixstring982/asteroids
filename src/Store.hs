@@ -26,4 +26,6 @@ handleEvent :: Event -> Store -> Store
 handleEvent e (Store ship bs as) = Store (Ship.handleEvent e ship) (Bullet.handleEvent e (noseHeading ship) bs) as
 
 update :: Float -> Store -> Store
-update f (Store ship bs as) = Store (Ship.update f ship) (Bullet.update f bs) (Asteroid.update f as)
+update f (Store ship bs as) = Store (Ship.update f as ship)
+                                    (Bullet.update f bs)
+                                    (Asteroid.update f as)

@@ -5,6 +5,7 @@ module Vector2 (
   j,
   Vector2.scale,
   magnitude,
+  distance,
   normalize,
   fromPolar,
   toPoint,
@@ -54,6 +55,9 @@ scale f (Vector2 x y) = Vector2 (f * x) (f * y)
 
 magnitude :: Vector2 -> Float
 magnitude (Vector2 x y) = sqrt $ x * x + y * y
+
+distance :: Vector2 -> Vector2 -> Float
+distance a b = magnitude (a - b)
 
 normalize :: Vector2 -> Vector2
 normalize v@(Vector2 x y) = let mag = magnitude v in Vector2 (x / mag) (y / mag)
