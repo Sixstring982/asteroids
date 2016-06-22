@@ -97,17 +97,17 @@ render :: Asteroids -> Picture
 render as = Pictures [pictureFromAsteroid a | a <- as]
 
 updateRotation :: Float -> Asteroid -> Asteroid
-updateRotation f (Asteroid a m p v vs x) = Asteroid (a + f * rotationRate) m p v vs x
+updateRotation f a@(Asteroid t _ _ _ _ _) = a { angle = t + f * rotationRate }
 
 updatePosition :: Float -> Asteroid -> Asteroid
-updatePosition f (Asteroid a m p v vs l) =
+updatePosition f a@(Asteroid _ _ p v _ _) =
   let (w, h) = Screen.dimensions in
   let (fw, fh) = ((fromIntegral w), (fromIntegral h)) in
   let (hw, hh) = (fw / 2, fh / 2) in
   let (Vector2 x y) = p + v in
   let nx = if x < (-hw) then x + fw else if x > hw then x - fw else x in
   let ny = if y < (-hh) then y + fh else if y > hh then y - fh else y in
-  Asteroid a m (Vector2 nx ny) v vs l
+  a {pos = Vector2 nx ny }
 
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)
