@@ -76,11 +76,7 @@ generatePosition g0 =
     ((Vector2 x y), g2)
 
 generateVelocity :: RandomGen g => g -> (Vector2, g)
-generateVelocity g0 =
-  let (x, g1) = randomR (-1.0, 1.0) g0 in
-  let (y, g2) = randomR (-1.0, 1.0) g1 in
-  let n = normalize $ Vector2 x y in
-  (n, g2)
+generateVelocity = randomNormalized
 
 generateAsteroid :: RandomGen g => g -> (Asteroid, g)
 generateAsteroid g0 =
