@@ -4,6 +4,8 @@ module Vector2 (
   i,
   j,
   Vector2.scale,
+  magnitude,
+  normalize,
   fromPolar,
   toPoint,
   fromPoint,
@@ -49,6 +51,12 @@ scale :: Float                        -- ^ The scalar to scale the vector by
       -> Vector2                      -- ^ The vector to scale
       -> Vector2                      -- ^ The scaled vector
 scale f (Vector2 x y) = Vector2 (f * x) (f * y)
+
+magnitude :: Vector2 -> Float
+magnitude (Vector2 x y) = sqrt $ x * x + y * y
+
+normalize :: Vector2 -> Vector2
+normalize v@(Vector2 x y) = let mag = magnitude v in Vector2 (x / mag) (y / mag)
 
 -- | Given a pair of polar coordinates, transforms then into a
 -- Vector2 with euclidean components.
