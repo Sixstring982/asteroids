@@ -1,6 +1,8 @@
 module Asteroid (
   Asteroid(Asteroid),
   Asteroids,
+  size,
+  asteroidPosition,
   generateInitial,
   update,
   render,
@@ -13,6 +15,7 @@ import Screen
 import Vector2
 
 data Asteroid = Asteroid { angle :: Float,
+                           size :: Float,
                            pos :: Vector2,
                            vel :: Vector2,
                            shape :: [Vector2],
@@ -38,6 +41,9 @@ initialAsteroidCount = 10
 
 asteroidSeed :: Int
 asteroidSeed = 1024
+
+asteroidPosition :: Asteroid -> Vector2
+asteroidPosition = pos
 
 generateInitial :: Asteroids
 generateInitial =
@@ -70,38 +76,34 @@ generatePosition g0 =
     ((Vector2 x y), g2)
 
 generateVelocity :: RandomGen g => g -> (Vector2, g)
-generateVelocity g0 =
-  let (x, g1) = randomR (-1.0, 1.0) g0 in
-  let (y, g2) = randomR (-1.0, 1.0) g1 in
-  let n = normalize $ Vector2 x y in
-  (n, g2)
+generateVelocity = randomNormalized
 
 generateAsteroid :: RandomGen g => g -> (Asteroid, g)
 generateAsteroid g0 =
   let (pos, g1)  = generatePosition g0 in
   let (vel, g2)  = generateVelocity g1 in
   let (arms, g3) = generateArms g2 in
-  (Asteroid 0 pos vel arms True, g3)
+  (Asteroid 0 maxAsteroidSize pos vel arms True, g3)
 
 pictureFromAsteroid :: Asteroid -> Picture
-pictureFromAsteroid (Asteroid a (Vector2 x y) _ vs _) =
+pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs _) =
   color white $ translate x y $ rotate (degFromRad a) $ toLineLoop vs
 
 render :: Asteroids -> Picture
 render as = Pictures [pictureFromAsteroid a | a <- as]
 
 updateRotation :: Float -> Asteroid -> Asteroid
-updateRotation f (Asteroid a p v vs x) = Asteroid (a + f * rotationRate) p v vs x
+updateRotation f a@(Asteroid t _ _ _ _ _) = a { angle = t + f * rotationRate }
 
 updatePosition :: Float -> Asteroid -> Asteroid
-updatePosition f (Asteroid a p v vs l) =
+updatePosition f a@(Asteroid _ _ p v _ _) =
   let (w, h) = Screen.dimensions in
   let (fw, fh) = ((fromIntegral w), (fromIntegral h)) in
   let (hw, hh) = (fw / 2, fh / 2) in
   let (Vector2 x y) = p + v in
   let nx = if x < (-hw) then x + fw else if x > hw then x - fw else x in
   let ny = if y < (-hh) then y + fh else if y > hh then y - fh else y in
-  Asteroid a (Vector2 nx ny) v vs l
+  a {pos = Vector2 nx ny }
 
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)

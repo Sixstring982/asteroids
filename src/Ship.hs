@@ -1,15 +1,17 @@
 module Ship (
   Ship(Ship),
-  new,
-  render,
-  handleEvent,
-  update,
+  Ship.new,
+  Ship.render,
+  Ship.handleEvent,
+  Ship.update,
   noseHeading
 ) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
+import Asteroid
 import Entity
+import Fragment
 import Math
 import Screen
 import Vector2
@@ -59,7 +61,9 @@ data Ship = Ship { angle :: Float,
                    vel :: Vector2,
                    acceleration :: Acceleration,
                    rotation :: Rotation
-                 } deriving(Show)
+                 }
+          | Exploded Fragments
+          deriving(Show)
 
 noseHeading :: Ship -> (Vector2, Vector2)
 noseHeading s =
@@ -82,7 +86,7 @@ shipTranslation :: Ship -> (Picture -> Picture)
 shipTranslation (Ship a c (Vector2 x y) _ _ _) = (translate x y) . (rotate (degFromRad (-a))) . color c
 
 shipPicture :: Ship -> Picture
-shipPicture ship = pictures [bodyPicture, flamePicture ship]
+shipPicture ship = Pictures [bodyPicture, flamePicture ship]
 
 flameColor :: Color
 flameColor = red
@@ -98,31 +102,34 @@ bodyPicture =
   toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
   [(0, 1), ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66)]
 
-_shipRender :: Ship -> Picture
-_shipRender ship = (shipTranslation ship) (shipPicture ship)
+render :: Ship -> Picture
+render ship@(Ship _ _ _ _ _ _) = (shipTranslation ship) (shipPicture ship)
+render (Exploded fs) = Fragment.render fs
 
-_shipNew :: Ship
-_shipNew = Ship { angle = 0.0,
-                  drawColor = white,
-                  pos = zero,
-                  vel = zero,
-                  acceleration = NoAcceleration,
-                  rotation = NoRotation}
 
-_shipHandleEvent :: Event -> Ship -> Ship
-_shipHandleEvent (EventKey (Char 'w') state _ _) s =
+new :: Ship
+new = Ship { angle = 0.0,
+             drawColor = white,
+             pos = zero,
+             vel = zero,
+             acceleration = NoAcceleration,
+             rotation = NoRotation }
+
+handleEvent :: Event -> Ship -> Ship
+handleEvent _ s@(Exploded _) = s
+handleEvent (EventKey (Char 'w') state _ _) s =
   s { acceleration = (if state == Up then NoAcceleration else Forward) }
 
-_shipHandleEvent (EventKey (Char 's') state _ _) s =
+handleEvent (EventKey (Char 's') state _ _) s =
   s { acceleration = (if state == Up then NoAcceleration else Backward) }
 
-_shipHandleEvent (EventKey (Char 'a') state _ _) s =
+handleEvent (EventKey (Char 'a') state _ _) s =
   s { rotation = (if state == Up then NoRotation else LeftRotation) }
 
-_shipHandleEvent (EventKey (Char 'd') state _ _) s =
+handleEvent (EventKey (Char 'd') state _ _) s =
   s { rotation = (if state == Up then NoRotation else RightRotation) }
 
-_shipHandleEvent _ s = s
+handleEvent _ s = s
 
 updateVelocity :: Float -> Ship -> Ship
 updateVelocity f s@(Ship _ _ _ v a _) = s { vel = applyAcceleration a f v (heading s) }
@@ -151,11 +158,16 @@ updatePosition f s@(Ship _ _ p v _ _) = s { pos = fromPoint $ wrapInScreen $ toP
 updateAngle :: Float -> Ship -> Ship
 updateAngle f s@(Ship a _ _ _ _ r) = s { angle = applyRotation r f a }
 
-_shipUpdate :: Float -> Ship -> Ship
-_shipUpdate f = (updateVelocity f) . (updatePosition f) . (updateAngle f)
+asteroidCollisionPadding :: Float
+asteroidCollisionPadding = 0.5
 
-instance Entity Ship where
-  new         = _shipNew
-  render      = _shipRender
-  handleEvent = _shipHandleEvent
-  update      = _shipUpdate
+updateLiveliness :: Asteroids -> Ship -> Ship
+updateLiveliness as s@(Ship _ _ p _ _ x) =
+  let collisions = map (\ a -> let dist = distance (asteroidPosition a) p in
+                               dist < shipSize + (size a * asteroidCollisionPadding)) as in
+  let still_alive = not $ or collisions in
+  if still_alive then s else Exploded (generateFragments p)
+
+update :: Float -> Asteroids -> Ship -> Ship
+update f _ (Exploded fs) = Exploded (Fragment.update f fs)
+update f as s = ((updateLiveliness as) . (updateVelocity f) . (updatePosition f) . (updateAngle f)) s

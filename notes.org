@@ -1,0 +1,7 @@
+* Asteroids
+
+** Stuff to do before relase
+*** TODO Documentation
+*** TODO Record Syntax everywhere
+*** TODO Global BG-FG coloring
+*** TODO Long lets to wheres

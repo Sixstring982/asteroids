@@ -3,8 +3,10 @@ module Vector2 (
   zero,
   i,
   j,
+  randomNormalized,
   Vector2.scale,
   magnitude,
+  distance,
   normalize,
   fromPolar,
   toPoint,
@@ -14,6 +16,7 @@ module Vector2 (
   toPolygon
 ) where
 
+import System.Random
 import Graphics.Gloss
 import Math
 
@@ -45,6 +48,17 @@ i = Vector2 1 0
 j :: Vector2
 j = Vector2 0 1
 
+-- | Generates a normalized Vector2 in a random direction.
+randomNormalized :: RandomGen g => g  -- ^ The PRNG to generate
+                                      --   coordinates with
+                 -> (Vector2, g)      -- ^ The generated Vector2
+randomNormalized g0 =
+  (n, g2) where
+  (x, g1) = randomR (-1.0, 1.0) g0
+  (y, g2) = randomR (-1.0, 1.0) g1
+  n       = normalize $ Vector2 x y
+
+
 -- | Given a scalar and a Vector2, returns a version of the vector
 -- with its components multiplied by the vector.
 scale :: Float                        -- ^ The scalar to scale the vector by
@@ -54,6 +68,9 @@ scale f (Vector2 x y) = Vector2 (f * x) (f * y)
 
 magnitude :: Vector2 -> Float
 magnitude (Vector2 x y) = sqrt $ x * x + y * y
+
+distance :: Vector2 -> Vector2 -> Float
+distance a b = magnitude (a - b)
 
 normalize :: Vector2 -> Vector2
 normalize v@(Vector2 x y) = let mag = magnitude v in Vector2 (x / mag) (y / mag)
