@@ -94,10 +94,17 @@ updateRotation :: Float -> Asteroid -> Asteroid
 updateRotation f (Asteroid a p v vs x) = Asteroid (a + f * rotationRate) p v vs x
 
 updatePosition :: Float -> Asteroid -> Asteroid
-updatePosition f (Asteroid a p v vs x) = Asteroid a (p + v) v vs x
+updatePosition f (Asteroid a p v vs l) =
+  let (w, h) = Screen.dimensions in
+  let (fw, fh) = ((fromIntegral w), (fromIntegral h)) in
+  let (hw, hh) = (fw / 2, fh / 2) in
+  let (Vector2 x y) = p + v in
+  let nx = if x < (-hw) then x + fw else if x > hw then x - fw else x in
+  let ny = if y < (-hh) then y + fh else if y > hh then y - fh else y in
+  Asteroid a (Vector2 nx ny) v vs l
 
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)
 
 update :: Float -> Asteroids -> Asteroids
-update f = map (updateAsteroid f)
+update f as = filter alive $ map (updateAsteroid f) as
