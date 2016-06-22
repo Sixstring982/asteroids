@@ -24,7 +24,7 @@ import Math
 data Vector2
   -- | Constructs a Vector2 with its two components.
   = Vector2 Float Float
-  deriving(Show)
+  deriving(Show, Eq)
 
 instance Num Vector2 where
   (Vector2 ax ay) + (Vector2 bx by) = Vector2 (ax + bx) (ay + by)

@@ -1,6 +1,7 @@
 module Bullet (
   Bullet(Bullet),
   Bullets,
+  bulletPos,
   render,
   handleEvent,
   update
@@ -17,9 +18,12 @@ data Bullet = Bullet { angle :: Float,
                        pos :: Vector2,
                        vel :: Vector2,
                        alive :: Bool
-                     } deriving(Show)
+                     } deriving(Eq, Show)
 
 type Bullets = [Bullet]
+
+bulletPos :: Bullet -> Vector2
+bulletPos = pos
 
 fromNoseHeading :: (Vector2, Vector2) -> Bullet
 fromNoseHeading (p, v) = Bullet 0 p v True
