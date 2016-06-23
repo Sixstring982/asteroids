@@ -3,7 +3,7 @@
 ** Stuff to do before relase
 *** TODO Documentation
 *** TODO Record Syntax everywhere
-*** TODO Scoring System
+*** DONE Scoring System
 *** DONE Global BG-FG coloring
 *** TODO Long lets to wheres
 *** TODO More tests
