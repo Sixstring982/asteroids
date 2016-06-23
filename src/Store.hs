@@ -52,6 +52,7 @@ handleEvent _ s = s
 
 update :: Float -> Store -> Store
 update f (SplashScreen n) = SplashScreen (succ n)
+update f (Store n _ (Exploded []) _ _) = SplashScreen n
 update f (Store n score ship bs as) = Store (succ n)
                                             new_score
                                             (Ship.update n f as ship) new_bullets new_asteroids where
