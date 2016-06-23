@@ -14,12 +14,18 @@ import Font
 import Asteroid
 import Bullet
 import Screen
+import Splash
 import Ship
 
-data Store = Store Int Int Ship Bullets Asteroids
+data Store =
+  Store Int Int Ship Bullets Asteroids
+  | SplashScreen Int Int
 
 new :: Store
-new = Store 0 0 Ship.new [] Asteroid.generateInitial
+new = SplashScreen 0 0
+
+withFrame :: Int -> Store
+withFrame n = Store n 0 Ship.new [] Asteroid.generateInitial
 
 scoreSize :: Float
 scoreSize = 12
@@ -31,18 +37,22 @@ renderScore n = translate x y $ scale scoreSize scoreSize $ pictureFromInt n whe
   (mx, my) = (20, 20)
   (x, y) = (mx - hw, hh - my)
 
-
 render :: Store -> Picture
 render (Store _ score ship bs as) = color Screen.fgColor $
   Pictures [renderScore score, Ship.render ship, Bullet.render bs, Asteroid.render as]
+render (SplashScreen _ score) = Splash.render score
 
 handleEvent :: Event -> Store -> Store
 handleEvent e (Store n s ship bs as) = Store n s
                                            (Ship.handleEvent e ship)
                                            (Bullet.handleEvent e (noseHeading ship) bs)
                                            as
+handleEvent (EventKey (SpecialKey KeyEnter) Down (Modifiers Up Up Up)  _) (SplashScreen n _) = Store.withFrame n
+handleEvent _ s = s
 
 update :: Float -> Store -> Store
+update f (SplashScreen n score) = SplashScreen (succ n) score
+update f (Store n score (Exploded []) _ _) = SplashScreen n score
 update f (Store n score ship bs as) = Store (succ n)
                                             new_score
                                             (Ship.update n f as ship) new_bullets new_asteroids where

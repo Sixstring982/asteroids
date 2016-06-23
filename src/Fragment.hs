@@ -74,7 +74,7 @@ updateLiveliness f@(Fragment _ _ _ (Vector2 x y) _ _) =
   f { alive = still_alive }
 
 updateFragment :: Float -> Fragment -> Fragment
-updateFragment f = (updateFragmentAngle f) . (updateFragmentPosition f)
+updateFragment f = updateLiveliness . (updateFragmentAngle f) . (updateFragmentPosition f)
 
 update :: Float -> Fragments -> Fragments
 update f fs = filter alive $ map (updateFragment f) fs

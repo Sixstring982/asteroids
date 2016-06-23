@@ -1,5 +1,5 @@
 module Ship (
-  Ship(Ship),
+  Ship(Ship, Exploded),
   Ship.new,
   Ship.render,
   Ship.handleEvent,
