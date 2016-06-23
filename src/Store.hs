@@ -18,14 +18,22 @@ import Splash
 import Ship
 
 data Store =
-  Store Int Int Ship Bullets Asteroids
-  | SplashScreen Int Int
+  Store { frame :: Int,
+          score :: Int,
+          ship  :: Ship,
+          bullets :: Bullets,
+          asteroids :: Asteroids
+        }
+  | SplashScreen { splashFrame :: Int,
+                   finalScore :: Int
+                 } deriving(Show)
 
 new :: Store
-new = SplashScreen 0 0
+new = SplashScreen { splashFrame = 0, finalScore = 0 }
 
 withFrame :: Int -> Store
-withFrame n = Store n 0 Ship.new [] (Asteroid.generateInitial n)
+withFrame n = Store {frame = n, score = 0, ship = Ship.new,
+                     bullets = [], asteroids = (Asteroid.generateInitial n) }
 
 scoreSize :: Float
 scoreSize = 12
@@ -43,15 +51,16 @@ render (Store _ score ship bs as) = color Screen.fgColor $
 render (SplashScreen _ score) = Splash.render score
 
 handleEvent :: Event -> Store -> Store
-handleEvent e (Store n s ship bs as) = Store n s
-                                           (Ship.handleEvent e ship)
-                                           (Bullet.handleEvent e (noseHeadingVelocity ship) bs)
-                                           as
+handleEvent e s@(Store _ _ ship bs as) = s { ship = Ship.handleEvent e ship,
+                                             bullets = Bullet.handleEvent e
+                                                       (noseHeadingVelocity ship)
+                                                       bs,
+                                             asteroids = as }
 handleEvent (EventKey (SpecialKey KeyEnter) Down (Modifiers Up Up Up)  _) (SplashScreen n _) = Store.withFrame n
 handleEvent _ s = s
 
 update :: Float -> Store -> Store
-update f (SplashScreen n score) = SplashScreen (succ n) score
+update f s@(SplashScreen n _) = s { splashFrame = (succ n) }
 update f (Store n score (Exploded []) _ _) = SplashScreen n score
 update f (Store n score ship bs as) = Store (succ n)
                                             new_score

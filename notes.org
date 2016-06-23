@@ -5,9 +5,9 @@
 *** DONE Global BG-FG coloring
 *** DONE More randomness, Maybe seed the RNG with the current frame or something.
 *** DONE Asteroid regeneration
-*** TODO Bullet velocity should have ship velocity added to it
-*** TODO Documentation
+*** DONE Bullet velocity should have ship velocity added to it
 *** TODO Record Syntax everywhere
+*** TODO Documentation
 *** TODO Long lets to wheres
 *** TODO More tests
 *** TODO See if there's any stuff in LYAH that can be applied

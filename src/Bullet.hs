@@ -54,18 +54,18 @@ handleEvent (EventKey (Char 'e') state _ _) (Just nhv) bs =
 handleEvent _ _ bs = bs
 
 updateBulletRotation :: Float -> Bullet -> Bullet
-updateBulletRotation f (Bullet a p v x) = Bullet (a + f * rotateSpeed) p v x
+updateBulletRotation f b@(Bullet a _ _ _) = b { angle = a + f * rotateSpeed }
 
 updateBulletPosition :: Float -> Bullet -> Bullet
-updateBulletPosition f (Bullet a p v x) = Bullet a (p + v) v x
+updateBulletPosition _ b@(Bullet _ p v _) = b { pos = (p + v) }
 
 updateBulletLiveliness :: Float -> Bullet -> Bullet
-updateBulletLiveliness f (Bullet a p@(Vector2 x y) v _) =
+updateBulletLiveliness f b@(Bullet _ (Vector2 x y) _ _) =
   let (w, h) = Screen.dimensions in
   let (hw, hh) = (w `div` 2, h `div` 2) in
   let (ix, iy) = ((round x), (round y)) in
   let still_alive = ix > (-hw) && ix <= hw && iy > (-hh) && iy <= hh in
-    Bullet a p v still_alive
+    b { alive = still_alive }
 
 updateBullet :: Float -> Bullet -> Bullet
 updateBullet f = (updateBulletLiveliness f) . (updateBulletRotation f) . (updateBulletPosition f)
