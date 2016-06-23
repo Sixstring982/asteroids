@@ -4,7 +4,7 @@ module Ship (
   Ship.render,
   Ship.handleEvent,
   Ship.update,
-  noseHeading
+  noseHeadingVelocity
 ) where
 
 import Graphics.Gloss
@@ -64,12 +64,12 @@ data Ship = Ship { angle :: Float,
           | Exploded Fragments
           deriving(Show)
 
-noseHeading :: Ship -> Maybe (Vector2, Vector2)
-noseHeading (Exploded _) = Nothing
-noseHeading s =
+noseHeadingVelocity :: Ship -> Maybe (Vector2, Vector2, Vector2)
+noseHeadingVelocity (Exploded _) = Nothing
+noseHeadingVelocity s =
   let hding = heading s in
   let nose = (pos s) + (Vector2.scale shipSize hding) in
-  Just (nose, hding)
+  Just (nose, hding, vel s)
 
 -- | The size of the ship, Really, this is the number of pixels from
 -- the nose to the center of the ship.

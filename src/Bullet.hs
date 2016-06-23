@@ -25,8 +25,8 @@ type Bullets = [Bullet]
 bulletPos :: Bullet -> Vector2
 bulletPos = pos
 
-fromNoseHeading :: (Vector2, Vector2) -> Bullet
-fromNoseHeading (p, v) = Bullet 0 p v True
+fromNoseHeadingVelocity :: (Vector2, Vector2, Vector2) -> Bullet
+fromNoseHeadingVelocity (p, h, v) = Bullet 0 p (v + h)  True
 
 bulletSize :: Float
 bulletSize = 2.0
@@ -47,10 +47,10 @@ pictureFromBullet (Bullet a (Vector2 x y) _ _) =
 render :: Bullets -> Picture
 render bs = Pictures $ map pictureFromBullet bs
 
-handleEvent :: Event -> Maybe (Vector2, Vector2) -> Bullets -> Bullets
-handleEvent (EventKey (Char 'e') state _ _) (Just nh) bs =
+handleEvent :: Event -> Maybe (Vector2, Vector2, Vector2) -> Bullets -> Bullets
+handleEvent (EventKey (Char 'e') state _ _) (Just nhv) bs =
   if state == Up then bs
-  else (fromNoseHeading nh) : bs
+  else (fromNoseHeadingVelocity nhv) : bs
 handleEvent _ _ bs = bs
 
 updateBulletRotation :: Float -> Bullet -> Bullet

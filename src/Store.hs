@@ -45,7 +45,7 @@ render (SplashScreen _ score) = Splash.render score
 handleEvent :: Event -> Store -> Store
 handleEvent e (Store n s ship bs as) = Store n s
                                            (Ship.handleEvent e ship)
-                                           (Bullet.handleEvent e (noseHeading ship) bs)
+                                           (Bullet.handleEvent e (noseHeadingVelocity ship) bs)
                                            as
 handleEvent (EventKey (SpecialKey KeyEnter) Down (Modifiers Up Up Up)  _) (SplashScreen n _) = Store.withFrame n
 handleEvent _ s = s
