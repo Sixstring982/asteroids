@@ -14,6 +14,7 @@ import Font
 import Asteroid
 import Bullet
 import Screen
+import Splash
 import Ship
 
 data Store =
@@ -39,7 +40,7 @@ renderScore n = translate x y $ scale scoreSize scoreSize $ pictureFromInt n whe
 render :: Store -> Picture
 render (Store _ score ship bs as) = color Screen.fgColor $
   Pictures [renderScore score, Ship.render ship, Bullet.render bs, Asteroid.render as]
-render (SplashScreen _) = Pictures []
+render (SplashScreen _) = Splash.render
 
 handleEvent :: Event -> Store -> Store
 handleEvent e (Store n s ship bs as) = Store n s

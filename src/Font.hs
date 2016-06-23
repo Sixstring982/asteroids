@@ -70,6 +70,7 @@ charCoords 'W' = [1, 7, 5, 9, 3]
 charCoords 'X' = [1, 9, 5, 7, 3]
 charCoords 'Y' = [1, 5, 3, 5, 8]
 charCoords 'Z' = [1, 3, 7, 9]
+charCoords ' ' = []
 
 pictureFromPicturables :: Picturable a => [a] -> Picture
 pictureFromPicturables ps = pictures $
