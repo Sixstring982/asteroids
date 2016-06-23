@@ -12,6 +12,7 @@ import Graphics.Gloss.Interface.Pure.Game
 import Entity
 import Asteroid
 import Bullet
+import Screen
 import Ship
 
 data Store = Store Int Ship Bullets Asteroids
@@ -20,7 +21,8 @@ new :: Store
 new = Store 0 Ship.new [] Asteroid.generateInitial
 
 render :: Store -> Picture
-render (Store _ ship bs as) = Pictures [Ship.render ship, Bullet.render bs, Asteroid.render as]
+render (Store _ ship bs as) = color Screen.fgColor $
+  Pictures [Ship.render ship, Bullet.render bs, Asteroid.render as]
 
 handleEvent :: Event -> Store -> Store
 handleEvent e (Store n ship bs as) = Store n

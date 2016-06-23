@@ -55,7 +55,7 @@ fragmentPicture (Fragment _ _ l _ _ _) = line [(-l, 0), (l, 0)]
 
 renderFragment :: Fragment -> Picture
 renderFragment f@(Fragment a _ _ (Vector2 x y) _ _) =
-  color white $ translate x y $ rotate (degFromRad a) $ fragmentPicture f
+  translate x y $ rotate (degFromRad a) $ fragmentPicture f
 
 render :: Fragments -> Picture
 render fs = Pictures $ map renderFragment fs

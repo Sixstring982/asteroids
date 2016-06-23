@@ -91,7 +91,7 @@ generateAsteroid s g0 =
 
 pictureFromAsteroid :: Asteroid -> Picture
 pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs _) =
-  color white $ translate x y $ rotate (degFromRad a) $ toLineLoop vs
+  translate x y $ rotate (degFromRad a) $ toLineLoop vs
 
 render :: Asteroids -> Picture
 render as = Pictures [pictureFromAsteroid a | a <- as]

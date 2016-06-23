@@ -9,8 +9,5 @@ import Store
 window :: Display
 window = InWindow "Asteroids" Screen.dimensions Screen.position
 
-bgColor :: Color
-bgColor = black
-
 main :: IO ()
-main = play window bgColor Screen.fps Store.new Store.render Store.handleEvent Store.update
+main = play window Screen.bgColor Screen.fps Store.new Store.render Store.handleEvent Store.update

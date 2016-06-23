@@ -38,7 +38,7 @@ rotateSpeed :: Float
 rotateSpeed = 10.0
 
 bulletPicture :: Picture
-bulletPicture = color white $ line [(-2, 0), (2, 0)]
+bulletPicture = line [(-2, 0), (2, 0)]
 
 pictureFromBullet :: Bullet -> Picture
 pictureFromBullet (Bullet a (Vector2 x y) _ _) =

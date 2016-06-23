@@ -56,7 +56,6 @@ applyRotation RightRotation f a = a - rotationSpeed * f
 
 
 data Ship = Ship { angle :: Float,
-                   drawColor :: Color,
                    pos :: Vector2,
                    vel :: Vector2,
                    acceleration :: Acceleration,
@@ -80,10 +79,10 @@ shipSize = 20.0
 -- on its rotation angle.
 heading :: Ship                       -- ^ The ship to calculate the heading of
         -> Vector2                    -- ^ The heading of the ship
-heading (Ship a _ _ _ _ _) = fromPolar (a, 1)
+heading (Ship a _ _ _ _) = fromPolar (a, 1)
 
 shipTranslation :: Ship -> (Picture -> Picture)
-shipTranslation (Ship a c (Vector2 x y) _ _ _) = (translate x y) . (rotate (degFromRad (-a))) . color c
+shipTranslation (Ship a (Vector2 x y) _ _ _) = (translate x y) . (rotate (degFromRad (-a)))
 
 shipPicture :: Ship -> Picture
 shipPicture ship = Pictures [bodyPicture, flamePicture ship]
@@ -92,7 +91,7 @@ flameColor :: Color
 flameColor = red
 
 flamePicture :: Ship -> Picture
-flamePicture (Ship _ _ _ _ a _) =
+flamePicture (Ship _ _ _ a _) =
   let flame = toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
         [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5)]
   in if a /= Forward then Blank else flame
@@ -103,13 +102,12 @@ bodyPicture =
   [(0, 1), ((2.0 * pi) / 3.0, 0.66), (0, 0), ((4.0 * pi) / 3.0, 0.66)]
 
 render :: Ship -> Picture
-render ship@(Ship _ _ _ _ _ _) = (shipTranslation ship) (shipPicture ship)
+render ship@(Ship _ _ _ _ _) = (shipTranslation ship) (shipPicture ship)
 render (Exploded fs) = Fragment.render fs
 
 
 new :: Ship
 new = Ship { angle = 0.0,
-             drawColor = white,
              pos = zero,
              vel = zero,
              acceleration = NoAcceleration,
@@ -132,7 +130,7 @@ handleEvent (EventKey (Char 'd') state _ _) s =
 handleEvent _ s = s
 
 updateVelocity :: Float -> Ship -> Ship
-updateVelocity f s@(Ship _ _ _ v a _) = s { vel = applyAcceleration a f v (heading s) }
+updateVelocity f s@(Ship _ _ v a _) = s { vel = applyAcceleration a f v (heading s) }
 
 wrapInBounds :: (Float, Float)
              -> (Float, Float)
@@ -153,16 +151,16 @@ wrapInScreen = wrapInBounds mins maxs where
   maxs   = (fromIntegral (w `div` 2), fromIntegral (h `div` 2))
 
 updatePosition :: Float -> Ship -> Ship
-updatePosition f s@(Ship _ _ p v _ _) = s { pos = fromPoint $ wrapInScreen $ toPoint $ p + v }
+updatePosition f s@(Ship _ p v _ _) = s { pos = fromPoint $ wrapInScreen $ toPoint $ p + v }
 
 updateAngle :: Float -> Ship -> Ship
-updateAngle f s@(Ship a _ _ _ _ r) = s { angle = applyRotation r f a }
+updateAngle f s@(Ship a _ _ _ r) = s { angle = applyRotation r f a }
 
 asteroidCollisionPadding :: Float
 asteroidCollisionPadding = 0.5
 
 updateLiveliness :: Int -> Asteroids -> Ship -> Ship
-updateLiveliness n as s@(Ship _ _ p _ _ x) =
+updateLiveliness n as s@(Ship _ p _ _ x) =
   let collisions = map (\ a -> let dist = distance (asteroidPosition a) p in
                                dist < shipSize + (size a * asteroidCollisionPadding)) as in
   let still_alive = not $ or collisions in
