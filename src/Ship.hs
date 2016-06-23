@@ -64,11 +64,12 @@ data Ship = Ship { angle :: Float,
           | Exploded Fragments
           deriving(Show)
 
-noseHeading :: Ship -> (Vector2, Vector2)
+noseHeading :: Ship -> Maybe (Vector2, Vector2)
+noseHeading (Exploded _) = Nothing
 noseHeading s =
   let hding = heading s in
   let nose = (pos s) + (Vector2.scale shipSize hding) in
-  (nose, hding)
+  Just (nose, hding)
 
 -- | The size of the ship, Really, this is the number of pixels from
 -- the nose to the center of the ship.

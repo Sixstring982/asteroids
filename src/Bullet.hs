@@ -47,8 +47,8 @@ pictureFromBullet (Bullet a (Vector2 x y) _ _) =
 render :: Bullets -> Picture
 render bs = Pictures $ map pictureFromBullet bs
 
-handleEvent :: Event -> (Vector2, Vector2) -> Bullets -> Bullets
-handleEvent (EventKey (Char 'e') state _ _) nh bs =
+handleEvent :: Event -> Maybe (Vector2, Vector2) -> Bullets -> Bullets
+handleEvent (EventKey (Char 'e') state _ _) (Just nh) bs =
   if state == Up then bs
   else (fromNoseHeading nh) : bs
 handleEvent _ _ bs = bs
