@@ -43,18 +43,15 @@ rotationRate = 3.0
 initialAsteroidCount :: Int
 initialAsteroidCount = 10
 
-asteroidSeed :: Int
-asteroidSeed = 1024
-
 asteroidPosition :: Asteroid -> Vector2
 asteroidPosition = pos
 
 generateInitial :: Asteroids
-generateInitial = generateAsteroids initialAsteroidCount maxAsteroidSize
+generateInitial = generateAsteroids 1024 initialAsteroidCount maxAsteroidSize
 
-generateAsteroids :: Int -> Float -> Asteroids
-generateAsteroids num s =
-  let rand = mkStdGen asteroidSeed in
+generateAsteroids :: Int -> Int -> Float -> Asteroids
+generateAsteroids n num s =
+  let rand = mkStdGen n in
   let (as, _) =
         foldl (\ (ls, g) n -> let (a, new_g) = generateAsteroid s g in
                               (a : ls, new_g))
@@ -99,9 +96,9 @@ pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs _) =
 render :: Asteroids -> Picture
 render as = Pictures [pictureFromAsteroid a | a <- as]
 
-splitAsteroid :: Asteroid -> Asteroids
-splitAsteroid a = map (\b -> b { pos = pos a }) split_asteroids where
-  smaller_asteroids = generateAsteroids 2 (size a / 2)
+splitAsteroid :: Int -> Asteroid -> Asteroids
+splitAsteroid n a = map (\b -> b { pos = pos a }) split_asteroids where
+  smaller_asteroids = generateAsteroids n 2 (size a / 2)
   split_asteroids   = filter (\b -> size b > minAsteroidSize) smaller_asteroids
 
 updateRotation :: Float -> Asteroid -> Asteroid
@@ -120,13 +117,13 @@ updatePosition f a@(Asteroid _ _ p v _ _) =
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)
 
-update :: Float -> Asteroids -> Bullets -> (Asteroids, Bullets)
-update f as bs = (new_asteroids, new_bullets) where
+update :: Int -> Float -> Asteroids -> Bullets -> (Asteroids, Bullets)
+update n f as bs = (new_asteroids, new_bullets) where
   collisions        = [(a, b) | a <- as, b <- bs, distance (bulletPos b) (pos a) < size a]
   dead_bullets      = map snd collisions
   hit_asteroids     = map fst collisions
   through_asteroids = filter (\a -> not (a `elem` hit_asteroids)) as
-  split_asteroids   = concatMap splitAsteroid hit_asteroids
+  split_asteroids   = concatMap (splitAsteroid n) hit_asteroids
   all_asteroids     = concat [split_asteroids, through_asteroids]
   new_asteroids     = filter alive $ map (updateAsteroid f) all_asteroids
   new_bullets       = filter (\b -> not (b `elem` dead_bullets)) bs

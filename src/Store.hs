@@ -31,4 +31,4 @@ handleEvent e (Store n ship bs as) = Store n
 update :: Float -> Store -> Store
 update f (Store n ship bs as) = Store (succ n) (Ship.update n f as ship) new_bullets new_asteroids where
   moved_bullets = Bullet.update f bs
-  (new_asteroids, new_bullets) = Asteroid.update f as moved_bullets
+  (new_asteroids, new_bullets) = Asteroid.update n f as moved_bullets
