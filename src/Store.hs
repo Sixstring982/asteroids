@@ -25,7 +25,7 @@ new :: Store
 new = SplashScreen 0 0
 
 withFrame :: Int -> Store
-withFrame n = Store n 0 Ship.new [] Asteroid.generateInitial
+withFrame n = Store n 0 Ship.new [] (Asteroid.generateInitial n)
 
 scoreSize :: Float
 scoreSize = 12

@@ -19,8 +19,7 @@ data Asteroid = Asteroid { angle :: Float,
                            size :: Float,
                            pos :: Vector2,
                            vel :: Vector2,
-                           shape :: [Vector2],
-                           alive :: Bool
+                           shape :: [Vector2]
                          } deriving(Show, Eq)
 
 type Asteroids = [Asteroid]
@@ -46,8 +45,8 @@ initialAsteroidCount = 10
 asteroidPosition :: Asteroid -> Vector2
 asteroidPosition = pos
 
-generateInitial :: Asteroids
-generateInitial = generateAsteroids 1024 initialAsteroidCount maxAsteroidSize
+generateInitial :: Int -> Asteroids
+generateInitial n = generateAsteroids n initialAsteroidCount maxAsteroidSize
 
 generateAsteroids :: Int -> Int -> Float -> Asteroids
 generateAsteroids n num s =
@@ -87,10 +86,10 @@ generateAsteroid s g0 =
   let (pos, g1)  = generatePosition g0 in
   let (vel, g2)  = generateVelocity g1 in
   let (arms, g3) = generateArms s g2 in
-  (Asteroid 0 s pos vel arms True, g3)
+  (Asteroid 0 s pos vel arms, g3)
 
 pictureFromAsteroid :: Asteroid -> Picture
-pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs _) =
+pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs) =
   translate x y $ rotate (degFromRad a) $ toLineLoop vs
 
 render :: Asteroids -> Picture
@@ -102,10 +101,10 @@ splitAsteroid n a = map (\b -> b { pos = pos a }) split_asteroids where
   split_asteroids   = filter (\b -> size b > minAsteroidSize) smaller_asteroids
 
 updateRotation :: Float -> Asteroid -> Asteroid
-updateRotation f a@(Asteroid t _ _ _ _ _) = a { angle = t + f * rotationRate }
+updateRotation f a@(Asteroid t _ _ _ _) = a { angle = t + f * rotationRate }
 
 updatePosition :: Float -> Asteroid -> Asteroid
-updatePosition f a@(Asteroid _ _ p v _ _) =
+updatePosition f a@(Asteroid _ _ p v _) =
   let (w, h) = Screen.dimensions in
   let (fw, fh) = ((fromIntegral w), (fromIntegral h)) in
   let (hw, hh) = (fw / 2, fh / 2) in
@@ -120,6 +119,9 @@ updateAsteroid f = (updateRotation f) . (updatePosition f)
 scorePerHit :: Int
 scorePerHit = 50
 
+scorePerLevel :: Int
+scorePerLevel = 1000
+
 update :: Int -> Int -> Float -> Asteroids -> Bullets -> (Asteroids, Bullets, Int)
 update n score f as bs = (new_asteroids, new_bullets, new_score) where
   collisions        = [(a, b) | a <- as, b <- bs, distance (bulletPos b) (pos a) < size a]
@@ -128,6 +130,8 @@ update n score f as bs = (new_asteroids, new_bullets, new_score) where
   through_asteroids = filter (\a -> not (a `elem` hit_asteroids)) as
   split_asteroids   = concatMap (splitAsteroid n) hit_asteroids
   all_asteroids     = concat [split_asteroids, through_asteroids]
-  new_asteroids     = filter alive $ map (updateAsteroid f) all_asteroids
+  new_asteroids     = if length all_asteroids == 0 then generateInitial n
+                      else map (updateAsteroid f) all_asteroids
   new_bullets       = filter (\b -> not (b `elem` dead_bullets)) bs
-  new_score         = score + scorePerHit * length dead_bullets
+  new_score         = score + scorePerHit * length dead_bullets +
+                      if length all_asteroids == 0 then scorePerLevel else 0
