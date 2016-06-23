@@ -78,8 +78,19 @@ pictureFromPicturables ps = pictures $
         []
         (zip [0..] (map toPicture ps))
 
-pictureFromInt :: Int -> Picture
+-- | Given an Int, will convert it to a Picture centered in the middle
+-- of the first character. This only works for Ints >= 0.
+pictureFromInt :: Int                 -- ^ The Int to compute a
+                                      -- Picture of.
+               -> Picture             -- ^ The Picture of the given
+                                      -- Int.
 pictureFromInt = pictureFromPicturables . digits
 
-pictureFromString :: String -> Picture
+-- | Given a String, will convert it to a Picture centered in the
+-- middle of the first character. This only works for Strings
+-- containing alphabetic characters and spaces.
+pictureFromString :: String           -- ^ The String to compute a
+                                      -- Picture of.
+                  -> Picture          -- ^ The Picture of the given
+                                      -- String.
 pictureFromString = pictureFromPicturables . (map toUpper)

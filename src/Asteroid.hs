@@ -15,13 +15,19 @@ import Math
 import Screen
 import Vector2
 
-data Asteroid = Asteroid { angle :: Float,
-                           size :: Float,
-                           pos :: Vector2,
-                           vel :: Vector2,
-                           shape :: [Vector2]
-                         } deriving(Show, Eq)
+-- | An Asteroid. This is what the player will be shooting at.
+data Asteroid =
+  -- | Constructs a new Asteroid.
+  Asteroid { angle :: Float,          -- ^ The angle of spin, in radians.
+             size  :: Float,          -- ^ The maximum size, in pixels.
+             pos   :: Vector2,        -- ^ The current position.
+             vel   :: Vector2,        -- ^ The current velocity.
+             shape :: [Vector2]       -- ^ The shape, as a list of
+                                      -- concurrent vectors from the
+                                      -- center.
+           } deriving(Show, Eq)
 
+-- | This is used to describe multiple Asteroids.
 type Asteroids = [Asteroid]
 
 maxAsteroidSize :: Float
@@ -42,10 +48,18 @@ rotationRate = 3.0
 initialAsteroidCount :: Int
 initialAsteroidCount = 10
 
-asteroidPosition :: Asteroid -> Vector2
+-- | Given an Asteroid, will return its position.
+asteroidPosition :: Asteroid          -- ^ The asteroid to calculate
+                                      -- the position of
+                 -> Vector2           -- ^ The position of the
+                                      -- asteroid
 asteroidPosition = pos
 
-generateInitial :: Int -> Asteroids
+-- | Generates a randomly determined set of asteroids given a random
+-- seed.
+generateInitial :: Int                -- ^ The PRNG seed used to
+                                      -- generate the asteroids
+                -> Asteroids          -- ^ The generated asteroids
 generateInitial n = generateAsteroids n initialAsteroidCount maxAsteroidSize
 
 generateAsteroids :: Int -> Int -> Float -> Asteroids
@@ -90,7 +104,11 @@ pictureFromAsteroid :: Asteroid -> Picture
 pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs) =
   translate x y $ rotate (degFromRad a) $ toLineLoop vs
 
-render :: Asteroids -> Picture
+-- | Given a set of Asteroids, will generate the Picture that
+-- represetnts them.
+render :: Asteroids                   -- ^ The Asteroids to compute a
+                                      -- Picture of.
+       -> Picture                     -- ^ The computed Picture.
 render as = Pictures [pictureFromAsteroid a | a <- as]
 
 splitAsteroid :: Int -> Asteroid -> Asteroids
@@ -119,7 +137,23 @@ scorePerHit = 50
 scorePerLevel :: Int
 scorePerLevel = 1000
 
-update :: Int -> Int -> Float -> Asteroids -> Bullets -> (Asteroids, Bullets, Int)
+-- | Updates the set of Asteroids. This method is where a lot of the
+-- action is, as it calculates scores and destroys asteroids and
+-- bullets.
+update :: Int                         -- ^ The current frame. This is
+                                      -- normally used as a PRNG seed
+                                      -- when needed.
+       -> Int                         -- ^ The current score. Any
+                                      -- scored points will be added
+                                      -- to this.
+       -> Float                       -- ^ The time delta, in seconds,
+                                      -- since the last time this
+                                      -- function ran.
+       -> Asteroids                   -- ^ The current set of
+                                      -- Asteroids.
+       -> Bullets                     -- ^ The current set of bullets.
+       -> (Asteroids, Bullets, Int)   -- ^ The new set of Asteroids,
+                                      -- Bullets, and the new score.
 update n score f as bs = (new_asteroids, new_bullets, new_score) where
   collisions        = [(a, b) | a <- as, b <- bs, distance (bulletPos b) (pos a) < size a]
   dead_bullets      = map snd collisions
