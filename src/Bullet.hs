@@ -60,12 +60,11 @@ updateBulletPosition :: Float -> Bullet -> Bullet
 updateBulletPosition _ b@(Bullet _ p v _) = b { pos = (p + v) }
 
 updateBulletLiveliness :: Float -> Bullet -> Bullet
-updateBulletLiveliness f b@(Bullet _ (Vector2 x y) _ _) =
-  let (w, h) = Screen.dimensions in
-  let (hw, hh) = (w `div` 2, h `div` 2) in
-  let (ix, iy) = ((round x), (round y)) in
-  let still_alive = ix > (-hw) && ix <= hw && iy > (-hh) && iy <= hh in
-    b { alive = still_alive }
+updateBulletLiveliness f b@(Bullet _ (Vector2 x y) _ _) = b { alive = still_alive } where
+  (w, h) = Screen.dimensions
+  (hw, hh) = (w `div` 2, h `div` 2)
+  (ix, iy) = ((round x), (round y))
+  still_alive = ix > (-hw) && ix <= hw && iy > (-hh) && iy <= hh
 
 updateBullet :: Float -> Bullet -> Bullet
 updateBullet f = (updateBulletLiveliness f) . (updateBulletRotation f) . (updateBulletPosition f)

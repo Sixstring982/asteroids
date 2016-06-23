@@ -66,10 +66,10 @@ data Ship = Ship { angle :: Float,
 
 noseHeadingVelocity :: Ship -> Maybe (Vector2, Vector2, Vector2)
 noseHeadingVelocity (Exploded _) = Nothing
-noseHeadingVelocity s =
-  let hding = heading s in
-  let nose = (pos s) + (Vector2.scale shipSize hding) in
-  Just (nose, hding, vel s)
+noseHeadingVelocity s = Just (nose, hding, vel s) where
+  hding = heading s
+  nose = (pos s) + (Vector2.scale shipSize hding)
+
 
 -- | The size of the ship, Really, this is the number of pixels from
 -- the nose to the center of the ship.
@@ -92,10 +92,9 @@ flameColor :: Color
 flameColor = red
 
 flamePicture :: Ship -> Picture
-flamePicture (Ship _ _ _ a _) =
-  let flame = toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
-        [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5)]
-  in if a /= Forward then Blank else flame
+flamePicture (Ship _ _ _ a _) = if a /= Forward then Blank else flame where
+  flame = toLineLoop $ (map (Vector2.scale shipSize)) $ (map fromPolar)
+          [(0, 0), ((5.0 * pi) / 6.0, 0.5), (pi, 0.66), ((7.0 * pi) / 6.0, 0.5)]
 
 bodyPicture :: Picture
 bodyPicture =
@@ -137,13 +136,12 @@ wrapInBounds :: (Float, Float)
              -> (Float, Float)
              -> (Float, Float)
              -> (Float, Float)
-wrapInBounds (min_x, min_y) (max_x, max_y) (x, y) =
-  let wrap v mn mx = if v < mn then mx + (mn - v)
-                     else if v > mx then mn + (v - mx)
-                          else v in
-  let new_x = wrap x min_x max_x in
-  let new_y = wrap y min_y max_y in
-  (new_x, new_y)
+wrapInBounds (min_x, min_y) (max_x, max_y) (x, y) = (new_x, new_y) where
+  wrap v mn mx = if v < mn then mx + (mn - v)
+                 else if v > mx then mn + (v - mx)
+                      else v
+  new_x = wrap x min_x max_x
+  new_y = wrap y min_y max_y
 
 wrapInScreen :: (Float, Float) -> (Float, Float)
 wrapInScreen = wrapInBounds mins maxs where

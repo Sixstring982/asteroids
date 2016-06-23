@@ -67,11 +67,10 @@ updateFragmentAngle :: Float -> Fragment -> Fragment
 updateFragmentAngle f fr@(Fragment a r _ _ _ _) = fr { angle = a + f * r }
 
 updateLiveliness :: Fragment -> Fragment
-updateLiveliness f@(Fragment _ _ _ (Vector2 x y) _ _) =
-  let (w, h)   = Screen.dimensions in
-  let (hw, hh) = ((fromIntegral w) / 2, (fromIntegral h) / 2) in
-  let still_alive = x > (-hw) && x < hw && y > (-hh) && y < hh in
-  f { alive = still_alive }
+updateLiveliness f@(Fragment _ _ _ (Vector2 x y) _ _) = f { alive = still_alive } where
+  (w, h)   = Screen.dimensions
+  (hw, hh) = ((fromIntegral w) / 2, (fromIntegral h) / 2)
+  still_alive = x > (-hw) && x < hw && y > (-hh) && y < hh
 
 updateFragment :: Float -> Fragment -> Fragment
 updateFragment f = updateLiveliness . (updateFragmentAngle f) . (updateFragmentPosition f)

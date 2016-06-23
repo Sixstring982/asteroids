@@ -71,22 +71,20 @@ generateArms s g0 =
         [1..asteroidArmCount]
 
 generatePosition :: RandomGen g => g -> (Vector2, g)
-generatePosition g0 =
-  let (w, h) = Screen.dimensions in
-  let (iw, ih) = ((fromIntegral w) / 2, (fromIntegral h) / 2) in
-  let (x, g1) = randomR (-iw, iw) g0 in
-  let (y, g2) = randomR (-ih, ih) g1 in
-    ((Vector2 x y), g2)
+generatePosition g0 = ((Vector2 x y), g2) where
+  (w, h) = Screen.dimensions
+  (iw, ih) = ((fromIntegral w) / 2, (fromIntegral h) / 2)
+  (x, g1) = randomR (-iw, iw) g0
+  (y, g2) = randomR (-ih, ih) g1
 
 generateVelocity :: RandomGen g => g -> (Vector2, g)
 generateVelocity = randomNormalized
 
 generateAsteroid :: RandomGen g => Float -> g -> (Asteroid, g)
-generateAsteroid s g0 =
-  let (pos, g1)  = generatePosition g0 in
-  let (vel, g2)  = generateVelocity g1 in
-  let (arms, g3) = generateArms s g2 in
-  (Asteroid 0 s pos vel arms, g3)
+generateAsteroid s g0 = (Asteroid 0 s pos vel arms, g3) where
+  (pos, g1)  = generatePosition g0
+  (vel, g2)  = generateVelocity g1
+  (arms, g3) = generateArms s g2
 
 pictureFromAsteroid :: Asteroid -> Picture
 pictureFromAsteroid (Asteroid a _ (Vector2 x y) _ vs) =
@@ -104,14 +102,13 @@ updateRotation :: Float -> Asteroid -> Asteroid
 updateRotation f a@(Asteroid t _ _ _ _) = a { angle = t + f * rotationRate }
 
 updatePosition :: Float -> Asteroid -> Asteroid
-updatePosition f a@(Asteroid _ _ p v _) =
-  let (w, h) = Screen.dimensions in
-  let (fw, fh) = ((fromIntegral w), (fromIntegral h)) in
-  let (hw, hh) = (fw / 2, fh / 2) in
-  let (Vector2 x y) = p + v in
-  let nx = if x < (-hw) then x + fw else if x > hw then x - fw else x in
-  let ny = if y < (-hh) then y + fh else if y > hh then y - fh else y in
-  a {pos = Vector2 nx ny }
+updatePosition f a@(Asteroid _ _ p v _) = a { pos = Vector2 nx ny } where
+  (w, h) = Screen.dimensions
+  (fw, fh) = ((fromIntegral w), (fromIntegral h))
+  (hw, hh) = (fw / 2, fh / 2)
+  (Vector2 x y) = p + v
+  nx = if x < (-hw) then x + fw else if x > hw then x - fw else x
+  ny = if y < (-hh) then y + fh else if y > hh then y - fh else y
 
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)
