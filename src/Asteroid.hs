@@ -117,8 +117,11 @@ updatePosition f a@(Asteroid _ _ p v _ _) =
 updateAsteroid :: Float -> Asteroid -> Asteroid
 updateAsteroid f = (updateRotation f) . (updatePosition f)
 
-update :: Int -> Float -> Asteroids -> Bullets -> (Asteroids, Bullets)
-update n f as bs = (new_asteroids, new_bullets) where
+scorePerHit :: Int
+scorePerHit = 50
+
+update :: Int -> Int -> Float -> Asteroids -> Bullets -> (Asteroids, Bullets, Int)
+update n score f as bs = (new_asteroids, new_bullets, new_score) where
   collisions        = [(a, b) | a <- as, b <- bs, distance (bulletPos b) (pos a) < size a]
   dead_bullets      = map snd collisions
   hit_asteroids     = map fst collisions
@@ -127,3 +130,4 @@ update n f as bs = (new_asteroids, new_bullets) where
   all_asteroids     = concat [split_asteroids, through_asteroids]
   new_asteroids     = filter alive $ map (updateAsteroid f) all_asteroids
   new_bullets       = filter (\b -> not (b `elem` dead_bullets)) bs
+  new_score         = score + scorePerHit * length dead_bullets

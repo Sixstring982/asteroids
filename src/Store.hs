@@ -22,10 +22,10 @@ new :: Store
 new = Store 0 0 Ship.new [] Asteroid.generateInitial
 
 scoreSize :: Float
-scoreSize = 20
+scoreSize = 12
 
 renderScore :: Int -> Picture
-renderScore n = translate x y $ scale scoreSize scoreSize $ pictureFromDigit n where
+renderScore n = translate x y $ scale scoreSize scoreSize $ pictureFromInt n where
   (w, h) = Screen.dimensions
   (hw, hh) = ((fromIntegral w) / 2, (fromIntegral h) / 2)
   (mx, my) = (20, 20)
@@ -44,7 +44,7 @@ handleEvent e (Store n s ship bs as) = Store n s
 
 update :: Float -> Store -> Store
 update f (Store n score ship bs as) = Store (succ n)
-                                            score
+                                            new_score
                                             (Ship.update n f as ship) new_bullets new_asteroids where
   moved_bullets = Bullet.update f bs
-  (new_asteroids, new_bullets) = Asteroid.update n f as moved_bullets
+  (new_asteroids, new_bullets, new_score) = Asteroid.update n score f as moved_bullets
