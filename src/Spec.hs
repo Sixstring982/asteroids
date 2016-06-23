@@ -11,5 +11,6 @@ main = hspec $ do
 
   describe "Math.digits" $ do
     it "Converts an int into a list of its digits" $ do
-      digits 100 `shouldBe` [1, 0, 0]
+      digits 100  `shouldBe` [1, 0, 0]
       digits 1234 `shouldBe` [1, 2, 3, 4]
+      digits 0    `shouldBe` [0]
