@@ -32,10 +32,7 @@ maxFragmentSpeed :: Float
 maxFragmentSpeed = 5.0
 
 generatedFragmentCount :: Int
-generatedFragmentCount = 10
-
-randomSeed :: Int
-randomSeed = 992
+generatedFragmentCount = 20
 
 generateFragment :: RandomGen g => g -> Vector2 -> (Fragment, g)
 generateFragment g0 p = (Fragment a rate len p (Vector2.scale speed hding) True, g5) where
@@ -45,12 +42,12 @@ generateFragment g0 p = (Fragment a rate len p (Vector2.scale speed hding) True,
   (speed, g4) = randomR (0.1 * maxFragmentSpeed, maxFragmentSpeed) g3
   (hding, g5) = randomNormalized g4
 
-generateFragments :: Vector2 -> Fragments
-generateFragments p = fs where
+generateFragments :: Int -> Vector2 -> Fragments
+generateFragments n p = fs where
   (fs, _) =
     foldr (\ _ (fs, g0) -> let (f, g1) = generateFragment g0 p in
                            (f : fs, g1))
-          ([], mkStdGen randomSeed)
+          ([], mkStdGen n)
           [1..generatedFragmentCount]
 
 fragmentPicture :: Fragment -> Picture

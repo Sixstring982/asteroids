@@ -161,13 +161,13 @@ updateAngle f s@(Ship a _ _ _ _ r) = s { angle = applyRotation r f a }
 asteroidCollisionPadding :: Float
 asteroidCollisionPadding = 0.5
 
-updateLiveliness :: Asteroids -> Ship -> Ship
-updateLiveliness as s@(Ship _ _ p _ _ x) =
+updateLiveliness :: Int -> Asteroids -> Ship -> Ship
+updateLiveliness n as s@(Ship _ _ p _ _ x) =
   let collisions = map (\ a -> let dist = distance (asteroidPosition a) p in
                                dist < shipSize + (size a * asteroidCollisionPadding)) as in
   let still_alive = not $ or collisions in
-  if still_alive then s else Exploded (generateFragments p)
+  if still_alive then s else Exploded (generateFragments n p)
 
-update :: Float -> Asteroids -> Ship -> Ship
-update f _ (Exploded fs) = Exploded (Fragment.update f fs)
-update f as s = ((updateLiveliness as) . (updateVelocity f) . (updatePosition f) . (updateAngle f)) s
+update :: Int -> Float -> Asteroids -> Ship -> Ship
+update n f _ (Exploded fs) = Exploded (Fragment.update f fs)
+update n f as s = ((updateLiveliness n as) . (updateVelocity f) . (updatePosition f) . (updateAngle f)) s

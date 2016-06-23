@@ -14,18 +14,21 @@ import Asteroid
 import Bullet
 import Ship
 
-data Store = Store Ship Bullets Asteroids
+data Store = Store Int Ship Bullets Asteroids
 
 new :: Store
-new = Store Ship.new [] Asteroid.generateInitial
+new = Store 0 Ship.new [] Asteroid.generateInitial
 
 render :: Store -> Picture
-render (Store ship bs as) = Pictures [Ship.render ship, Bullet.render bs, Asteroid.render as]
+render (Store _ ship bs as) = Pictures [Ship.render ship, Bullet.render bs, Asteroid.render as]
 
 handleEvent :: Event -> Store -> Store
-handleEvent e (Store ship bs as) = Store (Ship.handleEvent e ship) (Bullet.handleEvent e (noseHeading ship) bs) as
+handleEvent e (Store n ship bs as) = Store n
+                                           (Ship.handleEvent e ship)
+                                           (Bullet.handleEvent e (noseHeading ship) bs)
+                                           as
 
 update :: Float -> Store -> Store
-update f (Store ship bs as) = Store (Ship.update f as ship) new_bullets new_asteroids where
+update f (Store n ship bs as) = Store (succ n) (Ship.update n f as ship) new_bullets new_asteroids where
   moved_bullets = Bullet.update f bs
-  (new_asteroids, new_bullets) = Asteroid.update f as moved_bullets
+  (new_asteroids, new_bullets) = Asteroid.update n f as moved_bullets
