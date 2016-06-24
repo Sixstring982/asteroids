@@ -42,7 +42,14 @@ generateFragment g0 p = (Fragment a rate len p (Vector2.scale speed hding) True,
   (speed, g4) = randomR (0.1 * maxFragmentSpeed, maxFragmentSpeed) g3
   (hding, g5) = randomNormalized g4
 
-generateFragments :: Int -> Vector2 -> Fragments
+-- | Given a random seed and a position, generates a random list of
+-- Framents which fly outwards from the position.
+generateFragments :: Int              -- ^ The seed to initialize the
+                                      -- PRNG with
+                  -> Vector2          -- ^ The position that the
+                                      -- Fragments should disperse
+                                      -- from
+                  -> Fragments        -- ^ The generate Fragments.
 generateFragments n p = fs where
   (fs, _) =
     foldr (\ _ (fs, g0) -> let (f, g1) = generateFragment g0 p in
